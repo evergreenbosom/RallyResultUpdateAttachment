@@ -1,0 +1,52 @@
+
+1605715132279
+INFORMATION:	Setup test object for org.example.test.JMAQSSoapWebServiceDriverTest.TIBCOTestWithParsing
+
+1605715132312
+INFORMATION:	Test Case ID: TC8
+
+1605715132322
+INFORMATION:	<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://integration.catalystrx.com/wsdl/member/20120405" xmlns:ns1="http://integration.catalystrx.com/schema/common/20120405" xmlns:ns2="http://integration.catalystrx.com/schema/member/20120405">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ns:findMember>
+         <ns1:RequestContext>
+            <ns1:ApplicationContext>
+               <ns1:getLatestData>true</ns1:getLatestData>
+            </ns1:ApplicationContext>
+            <ns1:InvocationContext>
+               <ns1:ConsumerAppId>CAT_ESB</ns1:ConsumerAppId>
+               <ns1:ProviderAppId>SXC</ns1:ProviderAppId>
+               <ns1:ProviderInstanceId>A5-CTR</ns1:ProviderInstanceId>
+            </ns1:InvocationContext>
+            <ns1:UserContext>
+               <ns1:UserId>Ciboodle</ns1:UserId>
+               <ns1:UserIdType>USER_ID</ns1:UserIdType>
+            </ns1:UserContext>
+            <ns1:ServiceContext>
+               <ns1:CorrelationId>M8_TEST_0009</ns1:CorrelationId>
+               <ns1:ServiceVersion>V8.0.0</ns1:ServiceVersion>
+            </ns1:ServiceContext>
+         </ns1:RequestContext>
+         <ns2:idType>M</ns2:idType>
+         <ns2:MemberId>1TSK000027518</ns2:MemberId>
+         <ns:MemberIdSearchOperator>S</ns:MemberIdSearchOperator>
+         <ns:MaximumResultSetSize>75</ns:MaximumResultSetSize>
+      </ns:findMember>
+   </soapenv:Body>
+</soapenv:Envelope>
+
+1605715133090
+INFORMATION:	Expected "ns1:Date ->[#text: 2020-11-10-06:00]" to match actual "ns1:Date -> [#text: 2020-11-18-06:00]"
+Expected "Number of child nodes 0" to match actual "Number of child nodes 1"
+Expected "Number of child nodes 0" to match actual "Number of child nodes 1"
+Expected "Number of child nodes 0" to match actual "Number of child nodes 1"
+
+1605715133115
+ERROR:	Test Failed
+
+1605715133118
+VERBOSE:	Start dispose
+
+1605715133121
+VERBOSE:	End dispose

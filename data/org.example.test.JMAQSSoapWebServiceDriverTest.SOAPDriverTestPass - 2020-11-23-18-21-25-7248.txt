@@ -1,0 +1,20 @@
+
+1606155686363
+INFORMATION:	Setup test object for org.example.test.JMAQSSoapWebServiceDriverTest.SOAPDriverTestPass
+
+1606155686398
+INFORMATION:	Test Case ID: TC7
+
+1606155688093
+INFORMATION:	<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:gs="http://spring.io/guides/gs-producing-web-service"><soapenv:Header/><soapenv:Body><gs:getCountryRequest>
+    <gs:name>Spain</gs:name>
+</gs:getCountryRequest></soapenv:Body></soapenv:Envelope>
+
+1606155689382
+SUCCESS:	Test Passed
+
+1606155689385
+VERBOSE:	Start dispose
+
+1606155689388
+VERBOSE:	End dispose
