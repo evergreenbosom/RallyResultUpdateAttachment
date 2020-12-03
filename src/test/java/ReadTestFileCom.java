@@ -1,7 +1,9 @@
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
@@ -9,21 +11,25 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.codec.binary.Base64;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.rallydev.rest.RallyRestApi;
 import com.rallydev.rest.request.CreateRequest;
+import com.rallydev.rest.request.GetRequest;
 import com.rallydev.rest.request.QueryRequest;
 import com.rallydev.rest.request.UpdateRequest;
 import com.rallydev.rest.response.CreateResponse;
+import com.rallydev.rest.response.GetResponse;
 import com.rallydev.rest.response.QueryResponse;
 import com.rallydev.rest.response.UpdateResponse;
 import com.rallydev.rest.util.Fetch;
 import com.rallydev.rest.util.QueryFilter;
 import com.rallydev.rest.util.Ref;
 
-public class RallyTestCasesUpdate {
+public class ReadTestFileCom {
     static RallyRestApi restApi = null;
     static List<String> testSetRef;
     static String resultString = "";
@@ -32,8 +38,14 @@ public class RallyTestCasesUpdate {
 
 
     //static String tcId = "TC8";
-    static String testEnv = "Stage - ";
+    //static String testEnv = "Dev - Iteration 3";
+    static String testEnv = "";
     public static void main(String[] args) throws Exception {
+        // args = new String[2];
+        //args[0]="Dev - 2020.24";
+        testEnv = args[0];
+        //	args[1] ="data";
+        String folderName = args[1];
 
         // Connect to the Rally
         String baseURL = "https://rally1.rallydev.com";
@@ -41,7 +53,7 @@ public class RallyTestCasesUpdate {
 
 
         String resultDirName = "C:\\Users\\MohammodH\\OneDrive - Magenic\\Documents\\Result File\\";
-        File folder = new File("data");
+        File folder = new File(System.getProperty("user.dir")+"\\"+args[1]);
         File[] listOfFiles = folder.listFiles();
 
         for (File file : listOfFiles) {
@@ -104,12 +116,12 @@ public class RallyTestCasesUpdate {
                 //
 //    			String tcId = Reporter.getCurrentTestResult().getAttribute("tcId").toString();
 //    			String testEnv = Reporter.getCurrentTestResult().getAttribute("TestEnv").toString();
-//
+//    			
 //    			String tcId = "TC8";
 //    			String testEnv = "Dev - Iteration 3";
 
 
-                //System.out.println(getCurrentIterationRef(workspaceRef, projectRef).get("Name"));
+                System.out.println(getCurrentIterationRef(workspaceRef, projectRef).get("Name"));
                 // String currentIterationRef =
                 // Ref.getRelativeRef(getCurrentIterationRef(workspaceRef,projectRef).get("_ref").getAsString());
                 // String currentIterationName =
@@ -117,7 +129,7 @@ public class RallyTestCasesUpdate {
                 List<String> allTestSet = getAllTestSet(projectRef, currentIterationObj);
                 // if(allTestSet.isEmpty()) {System.out.println("it is empty");}
 
-                //System.out.println(allTestSet);
+                System.out.println(allTestSet);
                 // System.out.println(":::::"+testSetRef);
 
                 //System.out.println("starting call");
@@ -125,27 +137,21 @@ public class RallyTestCasesUpdate {
                 // String tsRef = queryRequest(workspaceRef,
                 // "TestSet",testSetRef.get(0).split("https://rally1.rallydev.com/slm/webservice/v2.0")[1]);//
                 // JsonObject tsRef = getRef(workspaceRef, projectRef,"TestSet","Stage");
-                JsonObject tsRef = getRef(workspaceRef, projectRef, "TestSet", testEnv + currentIterationObj.get("Name").getAsString());
+                JsonObject tsRef = getRef(workspaceRef, projectRef, "TestSet", testEnv);
 
                 // if(tsRef==null) {System.out.println("null");}
-                // System.out.println("::::"+tsRef.get("_ref").getAsString());
+                //--- System.out.println("::::"+tsRef.get("_ref").getAsString());
                 JsonObject tcRef = queryRequest(workspaceRef, projectRef, "TestCase", tcId);// .get("_ref").getAsString();
                 // if(tcRef==null) {System.out.println("null");}
-                // System.out.println("::::"+tcRef.get("_ref").getAsString());
+                System.out.println("::::"+tcRef.get("_ref").getAsString());
 
+                System.out.println("filename:" + resultFileName);
                 addTSToTC(tsRef, tcRef);
-                addTCResult(Ref.getRelativeRef(tsRef.get("_ref").getAsString()),
-                        Ref.getRelativeRef(tcRef.get("_ref").getAsString()));
+                addTCResult(workspaceRef,Ref.getRelativeRef(tsRef.get("_ref").getAsString()),
+                        Ref.getRelativeRef(tcRef.get("_ref").getAsString()),resultFileName);
+                //attachFileToTC(resultFileName,Ref.getRelativeRef(tcRef.get("_ref").getAsString()));
 
             }
-
-
-
-
-
-
-
-
         }
     }
 
@@ -242,11 +248,12 @@ public class RallyTestCasesUpdate {
         QueryRequest currentIterationRequest = new QueryRequest("Iteration");
         currentIterationRequest.setFetch(new Fetch("FormattedID", "Name", "StartDate", "EndDate"));
 
-        String pattern = "yyyy-MM-dd'T'HH:mmZ";
+        //String pattern = "yyyy-MM-dd'T'HH:mmZ";
+        String pattern = "yyyy-MM-dd";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
 
         String date = simpleDateFormat.format(new Date());
-        // System.out.println(date);
+        //System.out.println(date);
 
         currentIterationRequest
                 .setQueryFilter(new QueryFilter("StartDate", "<=", date).and(new QueryFilter("EndDate", ">=", date)));
@@ -377,7 +384,7 @@ public class RallyTestCasesUpdate {
     // add test case to test set
     public static void addTSToTC(JsonObject tsJsonObject, JsonObject testCaseJsonObject) {
 
-        String tsRef = tsJsonObject.get("_ref").getAsString();
+        //---String tsRef = tsJsonObject.get("_ref").getAsString();
         //System.out.println(tsRef);
 
         String testCaseRef = testCaseJsonObject.get("_ref").getAsString();
@@ -439,7 +446,7 @@ public class RallyTestCasesUpdate {
     }
 
     // Add a Test Case Result in test set
-    public static void addTCResult(String tsRef, String tcRef) {
+    public static void addTCResult(String workspaceRef,String tsRef, String tcRef,String filename) throws IOException {
         JsonObject newTestCaseResult = new JsonObject();
         //resultString need to update
         newTestCaseResult.addProperty("Verdict", resultString);
@@ -452,19 +459,97 @@ public class RallyTestCasesUpdate {
         newTestCaseResult.addProperty("TestCase", tcRef);
 
         newTestCaseResult.addProperty("TestSet", tsRef);
+        newTestCaseResult.addProperty("Workspace", workspaceRef);
+
+
+        //newTestCaseResult.addProperty("Name", "AttachmentFromREST.txt");
+
+
+
+
+
+
 
         CreateRequest createRequest = new CreateRequest("testcaseresult", newTestCaseResult);
-        try {
-            CreateResponse createResponse = restApi.create(createRequest);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        CreateResponse createResponse= restApi.create(createRequest);
+
+//		try {
+//			restApi.close();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+
+
+
+        String testCaseResultRef="";
+        if (createResponse.wasSuccessful()) {
+
+            //System.out.println(String.format("Created %s", createResponse.getObject().get("_ref").getAsString()));          
+
+            //Read Test Case Result
+            testCaseResultRef = Ref.getRelativeRef(createResponse.getObject().get("_ref").getAsString());
+            //System.out.println("tcRef: " +createResponse.getObject().get("_refObjectName").getAsString() );
+
         }
-        try {
-            restApi.close();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+
+
+
+
+
+        // File handle for text to attach
+        RandomAccessFile myImageFileHandle;
+        String imageBase64String;
+        long attachmentSize;
+
+        // Open file
+        myImageFileHandle = new RandomAccessFile(filename, "r");
+
+        // Get and check length
+        long longLength = myImageFileHandle.length();
+        long maxLength = 5000000;
+        if (longLength >= maxLength) throw new IOException("File size >= 5 MB Upper limit for Rally.");
+        int fileLength = (int) longLength;
+
+        // Read file and return data
+        byte[] fileBytes = new byte[fileLength];
+        myImageFileHandle.readFully(fileBytes);
+        imageBase64String = Base64.encodeBase64String(fileBytes);
+        attachmentSize = fileLength;
+
+        // First create AttachmentContent from text string
+        JsonObject myAttachmentContent = new JsonObject();
+        myAttachmentContent.addProperty("Content", imageBase64String);
+        CreateRequest attachmentContentCreateRequest = new CreateRequest("AttachmentContent", myAttachmentContent);
+        attachmentContentCreateRequest.addParam("workspace", workspaceRef);
+        CreateResponse attachmentContentResponse = restApi.create(attachmentContentCreateRequest);
+        String myAttachmentContentRef = attachmentContentResponse.getObject().get("_ref").getAsString();
+        //System.out.println("Attachment Content created: " + myAttachmentContentRef);            
+
+        //JsonObject fileRef = attachmentContentResponse.getObject();
+
+        // Now create the Attachment itself
+        JsonObject myAttachment = new JsonObject();
+        myAttachment.addProperty("TestCaseResult", testCaseResultRef);
+        myAttachment.addProperty("Content", myAttachmentContentRef);
+        myAttachment.addProperty("Name", filename.split("/")[1]);
+        myAttachment.addProperty("Description", "Test result file");
+        myAttachment.addProperty("ContentType","text/plain");
+        myAttachment.addProperty("Size", attachmentSize);
+        //myAttachment.addProperty("User", userRef);          
+
+        CreateRequest attachmentCreateRequest = new CreateRequest("Attachment", myAttachment);
+        attachmentCreateRequest.addParam("workspace", workspaceRef);
+
+        CreateResponse attachmentResponse = restApi.create(attachmentCreateRequest);
+        String myAttachmentRef = attachmentResponse.getObject().get("_ref").getAsString();
+        if (attachmentResponse.wasSuccessful()) {
+            System.out.println("Successfully created Attachment:: "+myAttachmentRef );
         }
+        //attaching file to test case result
+        //	newTestCaseResult.addProperty("Attachment", fileAttachmentRef);
+
+        //return  attachmentResponse.getObject();
     }
+
 }
